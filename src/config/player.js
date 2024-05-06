@@ -1,9 +1,9 @@
 export const _addPlayer = (config) => {
-    config.player = config.physics.add.sprite(100, 450, 'dude');
+    _createAndConfigurePlayer(config);
+    _createAndConfigurePlayerAnimations(config);
+}
 
-    config.player.setBounce(0.2);
-    config.player.setCollideWorldBounds(true);
-
+const _createAndConfigurePlayerAnimations = config => {
     config.anims.create({
         key: 'left',
         frames: config.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -23,6 +23,13 @@ export const _addPlayer = (config) => {
         frameRate: 10,
         repeat: -1
     });
+}
+
+const _createAndConfigurePlayer = (config) => {
+    config.player = config.physics.add.sprite(100, 1100, 'dude');
+
+    config.player.setBounce(0.2);
+    config.player.setCollideWorldBounds(true);
 }
 
 export const _bindKeyHandlers = (config) => {

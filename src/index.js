@@ -7,6 +7,9 @@ import { _addPlatforms } from '../src/config/platforms.js';
 import { _preloadAssets } from '../src/config/assetPreload.js';
 import { _configureScore } from '../src/config/score.js'
 
+export const GAME_WIDTH = 800;
+export const GAME_HEIGHT = 1200;
+
 class ExampleScene extends Phaser.Scene {
     constructor() {
         super();
@@ -37,13 +40,14 @@ class ExampleScene extends Phaser.Scene {
 
     update() {
         _bindKeyHandlers(this);
+        this.cameras.main.scrollY = this.player.y - this.cameras.main.height / 2;
     }
 }
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     physics: {
         default: 'arcade',
         arcade: {
