@@ -14,10 +14,12 @@ class ExampleScene extends Phaser.Scene {
     constructor() {
         super();
         this.player;
-        this.platforms;
+        this.flooring;
+        this.elevators;
         this.stars;
         this.score = 0;
         this.scoreText;
+        this.playerIsOnElevator = false;
     }
 
     preload() {
@@ -52,7 +54,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true
         }
     },
     scene: ExampleScene

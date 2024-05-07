@@ -1,3 +1,6 @@
+import Phaser from 'phaser';
+import { _moveElevator, _moveElevatorAutonomously } from './platforms.js'
+
 export const _addPlayer = (config) => {
     _createAndConfigurePlayer(config);
     _createAndConfigurePlayerAnimations(config);
@@ -33,25 +36,61 @@ const _createAndConfigurePlayer = (config) => {
 }
 
 export const _bindKeyHandlers = (config) => {
-    const cursors = config.input.keyboard.createCursorKeys();
+    config.cursors = config.input.keyboard.createCursorKeys();
+    const cursors = config.cursors;
+    const player = config.player
 
     if (cursors.left.isDown) {
-        config.player.setVelocityX(-160);
+        player.setVelocityX(-160);
 
-        config.player.anims.play('left', true);
+        player.anims.play('left', true);
     }
     else if (cursors.right.isDown) {
-        config.player.setVelocityX(160);
+        player.setVelocityX(160);
 
-        config.player.anims.play('right', true);
+        player.anims.play('right', true);
     }
     else {
-        config.player.setVelocityX(0);
+        player.setVelocityX(0);
 
-        config.player.anims.play('turn');
+        player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && config.player.body.touching.down) {
-        config.player.setVelocityY(-330);
+    let [isOnElevator, currElevator] = _checkAllElevatorsForCollisions(config, player);
+
+    config.playerIsOnElevator = isOnElevator;
+
+    // console.log("IS ON ELEVATOR:", isOnElevator);
+    if (cursors.up.isDown && player.body.touching.down && !isOnElevator) {
+        player.setVelocityY(-230);
     }
+
+    if (cursors.up.isDown && player.body.touching.down && isOnElevator) {
+        _moveElevator(currElevator, config, 'up')
+    }
+
+    if (cursors.down.isDown && player.body.touching.down && isOnElevator) {
+        _moveElevator(currElevator, config, 'down')
+    }
+}
+
+const _checkAllElevatorsForCollisions = (config, player) => {
+    let result = [false, []]
+    config.elevators.children.each(elevator => {
+        if (player.body.touching.down && _playerIsOnElevator(elevator, player)) {
+            // console.log("Collision Detected:", config.elevatorTweens)
+            elevator.autoMovementTween.stop();
+            result = [true, elevator];
+        } else {
+            if (elevator.autoMovementTween.isDestroyed()) {
+                _moveElevatorAutonomously(elevator, config)
+            }
+
+        }
+    });
+    return result
+}
+
+const _playerIsOnElevator = (elevator, player) => {
+    return Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), elevator.getBounds());
 }
