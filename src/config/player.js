@@ -31,7 +31,7 @@ const _createAndConfigurePlayerAnimations = config => {
 const _createAndConfigurePlayer = (config) => {
     config.player = config.physics.add.sprite(100, 1100, 'dude');
 
-    config.player.setBounce(0.2);
+    // config.player.setBounce(0.2);
     config.player.setCollideWorldBounds(true);
 }
 
@@ -60,16 +60,20 @@ export const _bindKeyHandlers = (config) => {
 
     config.playerIsOnElevator = isOnElevator;
 
-    // console.log("IS ON ELEVATOR:", isOnElevator);
+    // Jump
     if (cursors.up.isDown && player.body.touching.down && !isOnElevator) {
         player.setVelocityY(-230);
     }
 
+    //Move Elevator Up
     if (cursors.up.isDown && player.body.touching.down && isOnElevator) {
+        currElevator.autoMovementTween.stop();
         _moveElevator(currElevator, config, 'up')
     }
 
+    //Move Elevator Down
     if (cursors.down.isDown && player.body.touching.down && isOnElevator) {
+        currElevator.autoMovementTween.stop();
         _moveElevator(currElevator, config, 'down')
     }
 }
@@ -79,7 +83,7 @@ const _checkAllElevatorsForCollisions = (config, player) => {
     config.elevators.children.each(elevator => {
         if (player.body.touching.down && _playerIsOnElevator(elevator, player)) {
             // console.log("Collision Detected:", config.elevatorTweens)
-            elevator.autoMovementTween.stop();
+
             result = [true, elevator];
         } else {
             if (elevator.autoMovementTween.isDestroyed()) {

@@ -3,11 +3,12 @@ import { _addPlayer, _bindKeyHandlers } from '../src/config/player.js';
 import { _configurePhysics } from '../src/config/physics.js';
 import { _addBackground } from '../src/config/background.js';
 import { _addStars } from '../src/config/stars.js';
-import { _addPlatforms } from '../src/config/platforms.js';
+import { _constructMap } from '../src/config/platforms.js';
 import { _preloadAssets } from '../src/config/assetPreload.js';
 import { _configureScore } from '../src/config/score.js'
+import { level0 } from './config/maps/level0.js'
 
-export const GAME_WIDTH = 800;
+export const GAME_WIDTH = 1400;
 export const GAME_HEIGHT = 1200;
 
 class ExampleScene extends Phaser.Scene {
@@ -33,7 +34,7 @@ class ExampleScene extends Phaser.Scene {
 
         _configureScore(this);
 
-        _addPlatforms(this);
+        _constructMap(this, level0);
 
         _addPlayer(this);
 
