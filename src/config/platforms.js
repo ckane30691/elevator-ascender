@@ -19,6 +19,8 @@ const _TRANSLATE_ROW = {
     7: 1060
 }
 
+// TODO: Need to come up with a way to set the elevators y endpoint within the level
+
 export const _constructMap = (config, level) => {
     _addPhysicsGroups(config);
 
@@ -41,13 +43,15 @@ export const _constructMap = (config, level) => {
                     break;
                 // Elevator
                 case 2:
-                    _addElevator(config, row, col);
+                    _addElevator(config, row, col, level, i, j);
                     break;
                 // Elevator w/ Platform
                 case 3:
-                    _addPlatform(config, row, col);
-                    _addElevator(config, row, col);
+                    _addPlatform(config, row, col, level);
+                    _addElevator(config, row, col, level, i, j);
                     break;
+                // Top of Elevator Shaft
+                case 4:
             }
 
         }
@@ -65,13 +69,35 @@ const _addPlatform = (config, row, col) => {
     floor.body.setOffset(0, 0)
 }
 
-const _addElevator = (config, row, col) => {
+const _addElevator = (config, row, col, level, i, j) => {
+    // TODO: Adjust Speeds
+    // TODO: Fix Bug Where Game Freezes when you walk off elevator after pressing up key
     const elevator = config.elevators.create(row, col, 'elevator').setScale(.55).refreshBody();
     elevator.body.setSize(270, 125);
     elevator.body.setOffset(-5, 0)
     elevator.body.allowGravity = false;
     elevator.body.immovable = true;
-    _moveElevatorAutonomously(elevator, config);
+    const [endPosX, endPosY] = _calculateEndPos(level, i, j)
+    let translatedY = _TRANSLATE_COL[endPosX];
+    _moveElevatorAutonomously(elevator, config, translatedY);
+}
+
+const _calculateEndPos = (level, i, j) => {
+    let endPos;
+    const stack = [[i, j]]
+    while (stack.length) {
+
+        let [x, y] = stack.pop(); //[i,j]
+        let nextPos = [x - 1, y]
+        let nextNeighbor = level[nextPos[0]][nextPos[1]]
+        if (nextNeighbor === 4) {
+            endPos = nextPos;
+            return endPos
+        } else {
+            stack.push(nextPos)
+        }
+    }
+    throw new Error("Top of elevator shaft not marked on level")
 }
 
 export const _moveElevator = (elevator, config, direction) => {
@@ -94,47 +120,21 @@ export const _moveElevator = (elevator, config, direction) => {
             // Optionally, you can add code to execute when the tween completes
         }
     });
-    // elevator.y = newY
-
-    // newY = (newY + (player.y - elevator.y));
-    // config.tweens.add({
-    //     targets: player,
-    //     y: newY, // Adjust player's position relative to the elevator
-    //     duration: 500,
-    //     ease: 'Linear'
-    // });
-
 }
 
-export const _moveElevatorAutonomously = (elevator, config) => {
+export const _moveElevatorAutonomously = (elevator, config, endPosY) => {
     const startY = elevator.y;
-    const endY = 600; // Adjust as needed for desired movement distance
     // config.elevatorTweens = [];
     // Create tween for elevator movement
     elevator.autoMovementTween = config.tweens.add({
         targets: elevator,
-        y: endY,
+        y: endPosY,
         delay: 3000,
         yoyo: true,
         repeat: -1,
         duration: 10000, // Duration in milliseconds
         ease: 'Linear', // Linear easing for constant speed
-        // onComplete: () => {
-        //     console.log("TWEEN COMPLETED REVERSING DIRECTION")
-        //     console.log("Elevator Y POS", elevator.y)
-        //     // Reverse direction when reaching the end
-        //     // console.log("elevator Y pos: ", elevator.y)
-
-        //     elevator.autoMovementTween = config.tweens.add({
-        //         targets: elevator,
-        //         y: 1200,
-        //         duration: 20000, // Duration in milliseconds
-        //         ease: 'Linear',
-        //         onComplete: () => _moveElevatorAutonomously(elevator, config) // Restart the movement
-        //     });
-        // }
     });
-    // config.elevatorTweens.push(elevator.autoMovementTween)
 }
 
 // export const _moveElevators = config => {
