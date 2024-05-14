@@ -30,7 +30,7 @@ const _createAndConfigurePlayerAnimations = config => {
 
 const _createAndConfigurePlayer = (config) => {
     config.player = config.physics.add.sprite(100, 1100, 'dude');
-
+    config.player.body.setGravity(0, 100000);
     // config.player.setBounce(0.2);
     config.player.setCollideWorldBounds(true);
 }
@@ -56,24 +56,43 @@ export const _bindKeyHandlers = (config) => {
         player.anims.play('turn');
     }
 
+    if (player.body.touching.down) {
+        player.body.setGravity(0, 100000)
+    } else {
+        player.body.setGravity(0, 0);
+    }
+
     let [isOnElevator, currElevator] = _checkAllElevatorsForCollisions(config, player);
 
     config.playerIsOnElevator = isOnElevator;
 
     // Jump
     if (cursors.up.isDown && player.body.touching.down && !isOnElevator) {
+        player.body.setGravity(0, 0);
         player.setVelocityY(-230);
     }
 
     //Move Elevator Up
     if (cursors.up.isDown && player.body.touching.down && isOnElevator) {
+        // TODO: Make multiple button presses in a row a no-op
+        if (currElevator.direction === 'up') {
+            // Jump
+            player.body.setGravity(0, 0);
+            player.setVelocityY(-230);
+            return;
+        }
+        console.log("ELEVATOR WAS MOVING DOWN, NOW MOVING UP")
         currElevator.autoMovementTween.stop();
+        currElevator.direction = 'up'
         _moveElevator(currElevator, config, 'up')
     }
 
     //Move Elevator Down
     if (cursors.down.isDown && player.body.touching.down && isOnElevator) {
+        // TODO: Make multiple button presses in a row a no-op
+        if (currElevator.direction === 'down') return;
         currElevator.autoMovementTween.stop();
+        currElevator.direction = 'down'
         _moveElevator(currElevator, config, 'down')
     }
 }
@@ -82,14 +101,11 @@ const _checkAllElevatorsForCollisions = (config, player) => {
     let result = [false, []]
     config.elevators.children.each(elevator => {
         if (player.body.touching.down && _playerIsOnElevator(elevator, player)) {
-            // console.log("Collision Detected:", config.elevatorTweens)
-
+            console.log("Player On Elevator")
+            player.isOnElevator = true;
             result = [true, elevator];
         } else {
-            if (elevator.autoMovementTween.isDestroyed()) {
-                _moveElevatorAutonomously(elevator, config)
-            }
-
+            player.isOnElevator = false;
         }
     });
     return result

@@ -77,9 +77,14 @@ const _addElevator = (config, row, col, level, i, j) => {
     elevator.body.setOffset(-5, 0)
     elevator.body.allowGravity = false;
     elevator.body.immovable = true;
+    elevator.startY = col;
+    elevator.direction = 'up'
+
     const [endPosX, endPosY] = _calculateEndPos(level, i, j)
     let translatedY = _TRANSLATE_COL[endPosX];
-    _moveElevatorAutonomously(elevator, config, translatedY);
+
+    elevator.endY = translatedY
+    _moveElevatorAutonomously(elevator, config, translatedY, elevator.startY);
 }
 
 const _calculateEndPos = (level, i, j) => {
@@ -103,38 +108,68 @@ const _calculateEndPos = (level, i, j) => {
 export const _moveElevator = (elevator, config, direction) => {
     // Calculate new position
     let newY;
-    const player = config.player;
+    let oppositeEndOfCol;
     if (direction === 'up') {
-        newY = elevator.y - 160
+        newY = elevator.endY
+        oppositeEndOfCol = elevator.startY
     } else {
-        newY = elevator.y + 160
+        newY = elevator.startY
+        oppositeEndOfCol = elevator.endY
+        console.log("Heading Down to Y Pos: ", elevator.startY)
     }
 
+    _moveElevatorAutonomously(elevator, config, newY, oppositeEndOfCol)
+
     // Create a tween to smoothly move the elevator
-    config.tweens.add({
-        targets: elevator,
-        y: newY,
-        duration: 2000, // Duration in milliseconds
-        ease: 'Linear', // Easing function
-        onComplete: function () {
-            // Optionally, you can add code to execute when the tween completes
-        }
-    });
+    // elevator.alreadyInMotionByPlayer = direction;
+    // config.tweens.add({
+    //     targets: elevator,
+    //     y: newY,
+    //     duration: 10000, // Duration in milliseconds
+    //     ease: 'Linear', // Easing function
+    //     onComplete: () => {
+    //         elevator.alreadyInMotionByPlayer = false;
+    //         elevator.direction = elevator.direction === 'up' ? 'down' : 'up'
+    //     }
+    // });
 }
 
-export const _moveElevatorAutonomously = (elevator, config, endPosY) => {
-    const startY = elevator.y;
+export const _moveElevatorAutonomously = (elevator, config, endPosY, oppositeEndOfCol) => {
+    let distance = Math.abs(endPosY - elevator.y);
+    const speed = 50
+    let duration = distance / speed * 1000;
     // config.elevatorTweens = [];
+
     // Create tween for elevator movement
     elevator.autoMovementTween = config.tweens.add({
         targets: elevator,
         y: endPosY,
-        delay: 3000,
-        yoyo: true,
-        repeat: -1,
-        duration: 10000, // Duration in milliseconds
+        delay: 250,
+        duration, // Duration in milliseconds
         ease: 'Linear', // Linear easing for constant speed
+        onComplete: () => {
+            elevator.direction = elevator.direction === 'up' ? 'down' : 'up'
+            distance = Math.abs(oppositeEndOfCol - elevator.y);
+            duration = distance / speed * 1000;
+
+            elevator.autoMovementTween = config.tweens.add({
+                targets: elevator,
+                y: oppositeEndOfCol,
+                delay: 250,
+                duration, // Duration in milliseconds
+                ease: 'Linear', // Linear easing for constant speed
+                onComplete: () => _moveElevatorAutonomously(elevator, config, endPosY, oppositeEndOfCol)
+            })
+        }
     });
+    // Update player's position if elevator is moving downward
+    // if (elevator.direction === 'down') {
+    //     const currentTime = elevator.autoMovementTween.time || 1;
+    //     console.log("currentTime", currentTime)
+    //     const playerDeltaY = (currentTime / duration) * distance;
+    //     console.log(playerDeltaY * 50)
+    //     config.player.y += playerDeltaY * 50;
+    // }
 }
 
 // export const _moveElevators = config => {
