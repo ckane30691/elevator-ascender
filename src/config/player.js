@@ -30,7 +30,7 @@ const _createAndConfigurePlayerAnimations = config => {
 
 const _createAndConfigurePlayer = (config) => {
     config.player = config.physics.add.sprite(100, 1100, 'dude');
-    config.player.body.setGravity(0, 100000);
+    config.player.body.setGravity(0, 10000);
     // config.player.setBounce(0.2);
     config.player.setCollideWorldBounds(true);
 }
@@ -57,10 +57,11 @@ export const _bindKeyHandlers = (config) => {
     }
 
     if (player.body.touching.down) {
-        player.body.setGravity(0, 100000)
+        player.body.setGravity(0, 10000)
     } else {
         player.body.setGravity(0, 0);
     }
+    console.log("Player is on ground?: ", player.body.touching.down)
 
     let [isOnElevator, currElevator] = _checkAllElevatorsForCollisions(config, player);
 
@@ -112,5 +113,6 @@ const _checkAllElevatorsForCollisions = (config, player) => {
 }
 
 const _playerIsOnElevator = (elevator, player) => {
-    return Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), elevator.getBounds());
+    return player.body.touching.down && elevator.body.touching.up
+    // return Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), elevator.getBounds());
 }
