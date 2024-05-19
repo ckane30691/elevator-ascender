@@ -36,6 +36,7 @@ const _createAndConfigurePlayer = (config) => {
 }
 
 export const _bindKeyHandlers = (config) => {
+    // TODO: Bind different key for jumping and crouching
     config.cursors = config.input.keyboard.createCursorKeys();
     const cursors = config.cursors;
     const player = config.player
@@ -61,14 +62,13 @@ export const _bindKeyHandlers = (config) => {
     } else {
         player.body.setGravity(0, 0);
     }
-    console.log("Player is on ground?: ", player.body.touching.down)
 
     let [isOnElevator, currElevator] = _checkAllElevatorsForCollisions(config, player);
 
     config.playerIsOnElevator = isOnElevator;
 
     // Jump
-    if (cursors.up.isDown && player.body.touching.down && !isOnElevator) {
+    if (cursors.shift.isDown && player.body.touching.down) {
         player.body.setGravity(0, 0);
         player.setVelocityY(-230);
     }
@@ -76,12 +76,7 @@ export const _bindKeyHandlers = (config) => {
     //Move Elevator Up
     if (cursors.up.isDown && player.body.touching.down && isOnElevator) {
         // TODO: Make multiple button presses in a row a no-op
-        if (currElevator.direction === 'up') {
-            // Jump
-            player.body.setGravity(0, 0);
-            player.setVelocityY(-230);
-            return;
-        }
+        if (currElevator.direction === 'up') return;
         console.log("ELEVATOR WAS MOVING DOWN, NOW MOVING UP")
         currElevator.autoMovementTween.stop();
         currElevator.direction = 'up'

@@ -1,3 +1,5 @@
+import { _addDoor, _createDoorAnimations } from './doors.js'
+
 const _TRANSLATE_COL = {
     0: 0,
     1: 200,
@@ -50,17 +52,22 @@ export const _constructMap = (config, level) => {
                     _addPlatform(config, row, col, level);
                     _addElevator(config, row, col, level, i, j);
                     break;
-                // Top of Elevator Shaft
-                case 4:
+                // Platform with Door
+                case 6:
+                    _addPlatform(config, row, col, level);
+                    _addDoor(config, row, col, level)
+                    break
             }
 
         }
     }
+    _createDoorAnimations(config)
 }
 
 const _addPhysicsGroups = config => {
     config.flooring = config.physics.add.staticGroup();
     config.elevators = config.physics.add.group();
+    config.doors = config.physics.add.staticGroup();
 }
 
 const _addPlatform = (config, row, col) => {
