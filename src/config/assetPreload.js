@@ -6,8 +6,20 @@ export const _preloadAssets = (config) => {
         { frameWidth: 32, frameHeight: 40 }
     );
     config.load.image('bomb', 'assets/bomb.png');
-    config.load.spritesheet('dude',
-        'assets/dude.png',
-        { frameWidth: 32, frameHeight: 48 }
+    config.load.spritesheet('playerIdle',
+        'assets/player/playerIdle.png',
+        { frameWidth: 128, frameHeight: 128 }
+    );
+    config.load.spritesheet('playerRun',
+        'assets/player/playerRun.png',
+        { frameWidth: 128, frameHeight: 128 }
+    );
+    config.load.spritesheet('playerLieDown',
+        'assets/player/playerLieDown.png',
+        { frameWidth: 128, frameHeight: 128 }
+    );
+    config.load.spritesheet('playerShot',
+        'assets/player/playerShot1.png',
+        { frameWidth: 128, frameHeight: 128 }
     );
 }

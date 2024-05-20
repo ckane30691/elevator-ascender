@@ -9,30 +9,41 @@ export const _addPlayer = (config) => {
 const _createAndConfigurePlayerAnimations = config => {
     config.anims.create({
         key: 'left',
-        frames: config.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+        frames: config.anims.generateFrameNumbers('playerRun', { start: 0, end: 7 }),
         frameRate: 10,
         repeat: -1
     });
 
     config.anims.create({
-        key: 'turn',
-        frames: [{ key: 'dude', frame: 4 }],
-        frameRate: 20
+        key: 'idle',
+        frames: config.anims.generateFrameNumbers('playerIdle', { start: 0, end: 8 }),
+        frameRate: 20,
+        repeat: -1
     });
 
     config.anims.create({
         key: 'right',
-        frames: config.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        frames: config.anims.generateFrameNumbers('playerRun', { start: 0, end: 7 }),
         frameRate: 10,
         repeat: -1
     });
+
+    config.anims.create({
+        key: 'down',
+        frames: config.anims.generateFrameNumbers('playerLieDown', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: 0
+    })
 }
 
 const _createAndConfigurePlayer = (config) => {
-    config.player = config.physics.add.sprite(100, 1100, 'dude');
+    config.player = config.physics.add.sprite(100, 1000, 'playerIdle').setScale(1.5).refreshBody();
+    config.player.body.setSize(35, 60)
+    config.player.body.setOffset(45, 68)
     config.player.body.setGravity(0, 10000);
     // config.player.setBounce(0.2);
     config.player.setCollideWorldBounds(true);
+    config.player.isCrouching = false;
 }
 
 export const _bindKeyHandlers = (config) => {
@@ -41,20 +52,36 @@ export const _bindKeyHandlers = (config) => {
     const cursors = config.cursors;
     const player = config.player
 
+
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
-
+        player.setFlipX(true);
         player.anims.play('left', true);
     }
     else if (cursors.right.isDown) {
         player.setVelocityX(160);
-
+        player.setFlipX(false);
         player.anims.play('right', true);
     }
+    else if (cursors.down.isDown) {
+        if (!player.isCrouching) {
+            console.log("ANIMATION NOT PLAYED, STARTING ANIMATION:", player.isCrouching)
+            player.anims.play('down', true)
+            player.setVelocityX(0)
+            player.on('animationcomplete-down', () => {
+                player.setFrame(3);
+                player.isCrouching = true;
+                console.log("ANIMATION COMPLETED MARKED AS TRUE: ", player.isCrouching)
+            }, this);
+        }
+    }
     else {
+
+        player.isCrouching = false;
+        console.log("ANIMATION RESET TO FALSE: ", player.isCrouching)
         player.setVelocityX(0);
 
-        player.anims.play('turn');
+        player.anims.play('idle');
     }
 
     if (player.body.touching.down) {
@@ -68,7 +95,7 @@ export const _bindKeyHandlers = (config) => {
     config.playerIsOnElevator = isOnElevator;
 
     // Jump
-    if (cursors.shift.isDown && player.body.touching.down) {
+    if (cursors.shift.isDown && player.body.touching.down && !player.isCrouching) {
         player.body.setGravity(0, 0);
         player.setVelocityY(-230);
     }
