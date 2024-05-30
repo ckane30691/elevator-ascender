@@ -1,6 +1,6 @@
 import { _addDoor, _createDoorAnimations } from './doors.js'
 
-const _TRANSLATE_COL = {
+export const _TRANSLATE_COL = {
     0: 0,
     1: 200,
     2: 400,
@@ -10,7 +10,7 @@ const _TRANSLATE_COL = {
     6: 1200
 }
 
-const _TRANSLATE_ROW = {
+export const _TRANSLATE_ROW = {
     0: 80,
     1: 220,
     2: 360,

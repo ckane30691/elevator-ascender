@@ -11,12 +11,12 @@ import { level0 } from './config/maps/level0.js'
 export const GAME_WIDTH = 1400;
 export const GAME_HEIGHT = 1200;
 
-// TODO: Setup Doors for enemies to come out of [done]
-// TODO: Find sprite for main char [done]
+// TODO: Figure out overall theme of the game [med]
+// TODO: Find tileset that matches doors and main char sprites [med]
 // TODO: Find sprites for enemies and implement all of their animations [hard]
-// TODO: Find sprites for doors [done]
 // TODO: Implement enemy AI [hard]
-// TODO: Implement crouching functionality [medium]
+// TODO: Implement Jump Animation [easy]
+// TODO: Adjust hitbox when crouching [easy]
 // TODO: Weapons and powerups [hard]
 // TDOO: Background images [medium]
 // TODO: Setup multiple levels [medium]
@@ -24,6 +24,10 @@ export const GAME_HEIGHT = 1200;
 // TODO: Main menu and instructions [medium]
 // TODO: Rebind movement keys to wasd [easy]
 // TODO: Setup menu to let user bind their own keys [medium]
+// TODO: Implement crouching functionality [done]
+// TODO: Setup Doors for enemies to come out of [done]
+// TODO: Find sprites for doors [done]
+// TODO: Find sprite for main char [done]
 
 class ExampleScene extends Phaser.Scene {
     constructor() {
@@ -42,7 +46,7 @@ class ExampleScene extends Phaser.Scene {
     }
 
     create() {
-        _addBackground(this);
+        _addBackground(this, level0);
 
         // _addStars(this);
 
